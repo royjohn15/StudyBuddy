@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1117">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Study Tracker</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<main id="main">
+
+  <!-- ============ TODAY ============ -->
+  <section id="tab-home" class="tab active">
+    <header class="page-head">
+      <h1 id="greeting">Hello!</h1>
+      <p class="sub" id="home-date"></p>
+    </header>
+
+    <div class="card goal-card">
+      <svg viewBox="0 0 200 200" class="goal-ring" aria-hidden="true">
+        <circle class="ring-bg" cx="100" cy="100" r="86"></circle>
+        <circle class="ring-fg" id="goal-ring-fg" cx="100" cy="100" r="86"></circle>
+      </svg>
+      <div class="goal-center">
+        <div class="goal-min" id="goal-minutes">0m</div>
+        <div class="goal-label" id="goal-target">of 2h goal</div>
+      </div>
+    </div>
+
+    <div class="chip-row">
+      <div class="chip">
+        <span class="chip-emoji">🔥</span>
+        <span class="chip-val" id="chip-streak">0</span>
+        <span class="chip-label">day streak</span>
+      </div>
+      <div class="chip">
+        <span class="chip-emoji">🍅</span>
+        <span class="chip-val" id="chip-pomos">0</span>
+        <span class="chip-label">focus today</span>
+      </div>
+      <div class="chip">
+        <span class="chip-emoji">📝</span>
+        <span class="chip-val" id="chip-quiz">–</span>
+        <span class="chip-label">quiz avg (7d)</span>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn primary" data-action="start-focus">▶ Start focus</button>
+      <button class="btn" data-action="open-log">+ Log time</button>
+    </div>
+
+    <h2 class="section-title">Today's sessions</h2>
+    <div id="today-sessions" class="list"></div>
+  </section>
+
+  <!-- ============ TIMER ============ -->
+  <section id="tab-timer" class="tab">
+    <header class="page-head"><h1>Pomodoro</h1></header>
+
+    <div class="phase-pills" id="phase-pills">
+      <button class="pill" data-action="phase-select" data-phase="focus">Focus</button>
+      <button class="pill" data-action="phase-select" data-phase="short">Short break</button>
+      <button class="pill" data-action="phase-select" data-phase="long">Long break</button>
+    </div>
+
+    <div class="timer-wrap">
+      <svg viewBox="0 0 240 240" class="timer-ring" aria-hidden="true">
+        <circle class="ring-bg" cx="120" cy="120" r="106"></circle>
+        <circle class="ring-fg" id="timer-ring-fg" cx="120" cy="120" r="106"></circle>
+      </svg>
+      <div class="timer-center">
+        <div class="timer-time" id="timer-time">25:00</div>
+        <div class="timer-phase" id="timer-phase-label">Focus</div>
+      </div>
+    </div>
+
+    <div class="cycle-dots" id="cycle-dots" title="Focus sessions until long break"></div>
+
+    <div class="field timer-subject">
+      <label for="timer-subject-sel">Studying</label>
+      <select id="timer-subject-sel"></select>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn primary big" id="timer-main-btn" data-action="timer-toggle">Start</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn small" data-action="timer-reset">Reset</button>
+      <button class="btn small" data-action="timer-skip">Skip →</button>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section id="tab-quiz" class="tab">
+    <header class="page-head"><h1>Quiz marks</h1></header>
+
+    <form class="card form-card" id="quiz-form">
+      <h2 class="card-title">Add today's result</h2>
+      <div class="field-grid">
+        <div class="field">
+          <label for="quiz-date">Date</label>
+          <input type="date" id="quiz-date" required>
+        </div>
+        <div class="field">
+          <label for="quiz-subject">Subject</label>
+          <select id="quiz-subject"></select>
+        </div>
+        <div class="field">
+          <label for="quiz-score">Score</label>
+          <input type="number" id="quiz-score" min="0" step="0.5" inputmode="decimal" required placeholder="8">
+        </div>
+        <div class="field">
+          <label for="quiz-max">Out of</label>
+          <input type="number" id="quiz-max" min="0.5" step="0.5" inputmode="decimal" required placeholder="10">
+        </div>
+      </div>
+      <div class="field">
+        <label for="quiz-note">Note (optional)</label>
+        <input type="text" id="quiz-note" maxlength="80" placeholder="Chapter 4 mock test">
+      </div>
+      <button class="btn primary" type="submit">Save result</button>
+    </form>
+
+    <div class="quiz-summary chip-row" id="quiz-summary"></div>
+
+    <div class="card">
+      <div class="card-head-row">
+        <h2 class="card-title">Score trend</h2>
+        <select id="quiz-filter" class="inline-select"></select>
+      </div>
+      <div id="quiz-chart"></div>
+    </div>
+
+    <h2 class="section-title">Recent results</h2>
+    <div id="quiz-list" class="list"></div>
+  </section>
+
+  <!-- ============ STATS ============ -->
+  <section id="tab-stats" class="tab">
+    <header class="page-head"><h1>Stats</h1></header>
+
+    <div class="chip-row" id="stats-chips"></div>
+
+    <div class="card">
+      <h2 class="card-title">Last 7 days</h2>
+      <div id="week-chart"></div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">By subject (7 days)</h2>
+      <div id="subject-breakdown"></div>
+    </div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section id="tab-settings" class="tab">
+    <header class="page-head"><h1>Settings</h1></header>
+
+    <div class="card">
+      <h2 class="card-title">Pomodoro</h2>
+      <div class="field-grid">
+        <div class="field">
+          <label for="set-focus">Focus (min)</label>
+          <input type="number" id="set-focus" data-setting="focusMin" min="1" max="180" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label for="set-short">Short break</label>
+          <input type="number" id="set-short" data-setting="shortBreakMin" min="1" max="60" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label for="set-long">Long break</label>
+          <input type="number" id="set-long" data-setting="longBreakMin" min="1" max="90" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label for="set-every">Long break every</label>
+          <input type="number" id="set-every" data-setting="longBreakEvery" min="2" max="8" inputmode="numeric">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">Goal &amp; alerts</h2>
+      <div class="field">
+        <label for="set-goal">Daily goal (minutes)</label>
+        <input type="number" id="set-goal" data-setting="dailyGoalMin" min="10" max="960" inputmode="numeric">
+      </div>
+      <label class="toggle-row">
+        <span>Sound on session end</span>
+        <input type="checkbox" id="set-sound" data-setting="sound">
+      </label>
+      <label class="toggle-row">
+        <span>Vibration</span>
+        <input type="checkbox" id="set-vibrate" data-setting="vibrate">
+      </label>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">Subjects</h2>
+      <div id="subject-list" class="list tight"></div>
+      <div class="add-row">
+        <input type="text" id="new-subject" maxlength="24" placeholder="New subject name">
+        <button class="btn small" data-action="subject-add">Add</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">Data</h2>
+      <div class="btn-row">
+        <button class="btn small" data-action="export">Export backup</button>
+        <button class="btn small" data-action="import">Import backup</button>
+      </div>
+      <input type="file" id="import-file" accept="application/json" hidden>
+      <button class="btn small danger" data-action="reset-all">Erase all data</button>
+    </div>
+
+    <p class="about">Study Tracker · made with Claude Code · data lives only on this device</p>
+  </section>
+
+</main>
+
+<!-- bottom navigation -->
+<nav id="bottom-nav">
+  <button class="nav-btn active" data-action="nav" data-tab="home" aria-label="Today">
+    <svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1Z"/></svg>
+    <span>Today</span>
+  </button>
+  <button class="nav-btn" data-action="nav" data-tab="timer" aria-label="Timer">
+    <svg viewBox="0 0 24 24"><path d="M12 22a9 9 0 1 1 9-9 9 9 0 0 1-9 9Zm0-16a7 7 0 1 0 7 7 7 7 0 0 0-7-7Zm1 7V8h-2v7h6v-2Z M9 1h6v2H9z"/></svg>
+    <span>Timer</span>
+  </button>
+  <button class="nav-btn" data-action="nav" data-tab="quiz" aria-label="Quiz">
+    <svg viewBox="0 0 24 24"><path d="M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm2 4v2h10V7Zm0 4v2h10v-2Zm0 4v2h6v-2Z"/></svg>
+    <span>Quiz</span>
+  </button>
+  <button class="nav-btn" data-action="nav" data-tab="stats" aria-label="Stats">
+    <svg viewBox="0 0 24 24"><path d="M4 20V10h4v10Zm6 0V4h4v16Zm6 0v-7h4v7Z"/></svg>
+    <span>Stats</span>
+  </button>
+  <button class="nav-btn" data-action="nav" data-tab="settings" aria-label="Settings">
+    <svg viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 1 1 15.5 12 3.5 3.5 0 0 1 12 15.5Zm7.4-2.6a6 6 0 0 0 0-1.8l2-1.6-2-3.4-2.4 1a7.4 7.4 0 0 0-1.6-.9L15 3.5h-4l-.4 2.7a7.4 7.4 0 0 0-1.6.9l-2.4-1-2 3.4 2 1.6a6 6 0 0 0 0 1.8l-2 1.6 2 3.4 2.4-1a7.4 7.4 0 0 0 1.6.9l.4 2.7h4l.4-2.7a7.4 7.4 0 0 0 1.6-.9l2.4 1 2-3.4Z"/></svg>
+    <span>Settings</span>
+  </button>
+</nav>
+
+<!-- manual log modal -->
+<div id="modal-log" class="modal-backdrop" hidden>
+  <div class="modal">
+    <h2 class="card-title">Log study time</h2>
+    <div class="field">
+      <label for="log-subject">Subject</label>
+      <select id="log-subject"></select>
+    </div>
+    <div class="field">
+      <label for="log-minutes">Minutes</label>
+      <input type="number" id="log-minutes" min="1" max="600" inputmode="numeric" placeholder="30">
+    </div>
+    <div class="btn-row">
+      <button class="btn small" data-action="close-modal">Cancel</button>
+      <button class="btn small primary" data-action="save-log">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" hidden></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
